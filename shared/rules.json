@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "version": "0",
+  "status": "draft-unvalidated",
+  "source": "reference/amr-score-safer.html (faithful extraction, no clinical changes)",
+  "lastReviewedBy": null,
+  "lastReviewedAt": null,
+  "disclaimer": "Draft score, not yet validated; use with clinical judgement and unit protocol.",
+  "score": {
+    "cutoff": 6,
+    "max": 12,
+    "items": [
+      {
+        "id": "ster",
+        "letter": "S",
+        "name": "Steroid (antenatal)",
+        "shortName": "Steroid",
+        "options": [
+          { "id": "given-gt24h", "label": "Given > 24 h", "points": 0 },
+          { "id": "none-or-lt24h", "label": "Not given or < 24 h", "points": 1 }
+        ]
+      },
+      {
+        "id": "ga",
+        "letter": "A",
+        "name": "Age (gestational)",
+        "shortName": "Age",
+        "options": [
+          { "id": "lt28", "label": "< 28 wk", "points": 3 },
+          { "id": "28-32", "label": "28–32 wk", "points": 2 },
+          { "id": "32-35", "label": "32–35 wk", "points": 1 },
+          { "id": "gt35", "label": "> 35 wk", "points": 0 }
+        ]
+      },
+      {
+        "id": "fio2",
+        "letter": "F",
+        "name": "FiO₂ requirement",
+        "shortName": "FiO₂",
+        "options": [
+          { "id": "lt30", "label": "< 30%", "points": 0 },
+          { "id": "30-40", "label": "30–40%", "points": 1 },
+          { "id": "gt40", "label": "> 40%", "points": 2 }
+        ]
+      },
+      {
+        "id": "rd",
+        "letter": "E",
+        "name": "Effort (respiratory distress)",
+        "shortName": "Effort",
+        "hint": "Silverman: mild 1–3 · moderate 4–6 · severe ≥ 7",
+        "options": [
+          { "id": "none", "label": "None", "points": 0 },
+          { "id": "mild", "label": "Mild", "points": 1 },
+          { "id": "moderate", "label": "Moderate", "points": 2 },
+          { "id": "severe", "label": "Severe", "points": 3 }
+        ]
+      },
+      {
+        "id": "resp",
+        "letter": "R",
+        "name": "Respiratory support",
+        "shortName": "Respiratory support",
+        "options": [
+          { "id": "none", "label": "None", "points": 0 },
+          { "id": "hfnc", "label": "HFNC", "points": 1 },
+          { "id": "cpap-6-7", "label": "CPAP 6–7", "points": 1 },
+          { "id": "cpap-8", "label": "CPAP 8", "points": 2 },
+          { "id": "ventilation", "label": "Ventilation", "points": 3 }
+        ]
+      }
+    ]
+  },
+  "labels": {
+    "give": "Give surfactant",
+    "reassess": "Reassess in {minutes} min",
+    "none": "Score the {count} items",
+    "whyGive": "Score {total} ≥ {cutoff}",
+    "whyReassess": "Score {total} < {cutoff} · continue support",
+    "whyMissing": " · {missing} item(s) not scored",
+    "whyNone": "Tap one option in each item below",
+    "logGive": "Give surfactant",
+    "logReassess": "Reassess"
+  },
+  "note": {
+    "text": "FiO₂ > 30% on CPAP: European Consensus recommends surfactant at this level.",
+    "whenBelowCutoff": true,
+    "fio2Options": ["30-40", "gt40"],
+    "supportOptions": ["cpap-6-7", "cpap-8"]
+  },
+  "reassessment": {
+    "rounds": 4,
+    "intervalMinutes": 30
+  },
+  "surfactants": [
+    {
+      "id": "pora",
+      "name": "Poractant alfa",
+      "trade": "Curosurf",
+      "mgPerMl": 80,
+      "initialMgPerKg": 200,
+      "repeatMgPerKg": 100,
+      "vials": "1.5 mL and 3 mL"
+    },
+    {
+      "id": "bera",
+      "name": "Beractant",
+      "trade": "Survanta",
+      "mgPerMl": 25,
+      "initialMgPerKg": 100,
+      "repeatMgPerKg": 100,
+      "vials": "4 mL and 8 mL"
+    },
+    {
+      "id": "calf",
+      "name": "Calfactant",
+      "trade": "Infasurf",
+      "mgPerMl": 35,
+      "initialMgPerKg": 105,
+      "repeatMgPerKg": 105,
+      "vials": "3 mL and 6 mL"
+    },
+    {
+      "id": "bova",
+      "name": "Bovactant",
+      "trade": "Alveofact",
+      "mgPerMl": 45,
+      "initialMgPerKg": 50,
+      "repeatMgPerKg": 50,
+      "mlPerKg": 1.2,
+      "vials": "1.2 mL"
+    }
+  ],
+  "ett": {
+    "gaInputRange": [22, 44],
+    "gaLookupClamp": [23, 43],
+    "gaTable": [
+      { "fromWeeks": 23, "toWeeks": 24, "depthCm": 5.5 },
+      { "fromWeeks": 25, "toWeeks": 26, "depthCm": 6.0 },
+      { "fromWeeks": 27, "toWeeks": 29, "depthCm": 6.5 },
+      { "fromWeeks": 30, "toWeeks": 32, "depthCm": 7.0 },
+      { "fromWeeks": 33, "toWeeks": 34, "depthCm": 7.5 },
+      { "fromWeeks": 35, "toWeeks": 37, "depthCm": 8.0 },
+      { "fromWeeks": 38, "toWeeks": 40, "depthCm": 8.5 },
+      { "fromWeeks": 41, "toWeeks": 43, "depthCm": 9.0 }
+    ],
+    "weightOffsetCm": 6,
+    "tubeByWeightKg": [
+      { "below": 1, "sizeMm": "2.5" },
+      { "upTo": 2, "sizeMm": "3.0" },
+      { "sizeMm": "3.5" }
+    ],
+    "tubeByGaWeeks": [
+      { "below": 28, "sizeMm": "2.5" },
+      { "upTo": 34, "sizeMm": "3.0" },
+      { "sizeMm": "3.5" }
+    ]
+  },
+  "xrayCheck": "**Check the X-ray before giving:** ETT tip at **T1–T2**, mid-trachea, about **1 cm above the carina** (level with the clavicles). If the tip is at or below the carina (T3 or lower), pull back first so the dose doesn't go only into the right lung.",
+  "legend": {
+    "silverman": "Distress grading follows Silverman-Andersen as a guide."
+  }
+}

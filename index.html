@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="SAFER Score (Amr Score) - Surfactant decision in preterm respiratory distress, first 2 hours">
+  <meta name="theme-color" content="#0f6f7c">
+  <title>Amr Score (SAFER Score)</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      color-scheme: light;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font: 14px -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fff;
+      color: #000;
+    }
+    img {
+      max-width: 100%;
+    }
+    [hidden]:not([hidden="until-found" i]) {
+      display: none !important;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <noscript>
+    <div class="wrap" role="alert">
+      <h1>JavaScript required</h1>
+      <p>This tool needs JavaScript to function. Please enable it in your browser settings.</p>
+    </div>
+  </noscript>
+  <div id="root"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

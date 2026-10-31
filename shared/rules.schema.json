@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "safer-score-rules",
+  "title": "SAFER Score rules",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "status", "source", "lastReviewedBy", "lastReviewedAt", "disclaimer", "score", "labels", "note", "reassessment", "surfactants", "ett", "xrayCheck", "legend"],
+  "properties": {
+    "schema": { "const": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["draft-unvalidated", "under-review", "approved"] },
+    "source": { "type": "string", "minLength": 1 },
+    "lastReviewedBy": { "type": ["string", "null"] },
+    "lastReviewedAt": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "disclaimer": { "type": "string", "minLength": 1 },
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cutoff", "max", "items"],
+      "properties": {
+        "cutoff": { "type": "integer", "minimum": 1 },
+        "max": { "type": "integer", "minimum": 1 },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "letter", "name", "shortName", "options"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "letter": { "type": "string", "minLength": 1, "maxLength": 1 },
+              "name": { "type": "string", "minLength": 1 },
+              "shortName": { "type": "string", "minLength": 1 },
+              "hint": { "type": "string" },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["id", "label", "points"],
+                  "properties": {
+                    "id": { "type": "string", "minLength": 1 },
+                    "label": { "type": "string", "minLength": 1 },
+                    "points": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["give", "reassess", "none", "whyGive", "whyReassess", "whyMissing", "whyNone", "logGive", "logReassess"],
+      "properties": {
+        "give": { "type": "string" },
+        "reassess": { "type": "string" },
+        "none": { "type": "string" },
+        "whyGive": { "type": "string" },
+        "whyReassess": { "type": "string" },
+        "whyMissing": { "type": "string" },
+        "whyNone": { "type": "string" },
+        "logGive": { "type": "string" },
+        "logReassess": { "type": "string" }
+      }
+    },
+    "note": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "whenBelowCutoff", "fio2Options", "supportOptions"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "whenBelowCutoff": { "type": "boolean" },
+        "fio2Options": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "supportOptions": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+    "reassessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rounds", "intervalMinutes"],
+      "properties": {
+        "rounds": { "type": "integer", "minimum": 1 },
+        "intervalMinutes": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "surfactants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "trade", "mgPerMl", "initialMgPerKg", "repeatMgPerKg", "vials"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "trade": { "type": "string", "minLength": 1 },
+          "mgPerMl": { "type": "number", "exclusiveMinimum": 0 },
+          "initialMgPerKg": { "type": "number", "exclusiveMinimum": 0 },
+          "repeatMgPerKg": { "type": "number", "exclusiveMinimum": 0 },
+          "mlPerKg": { "type": "number", "exclusiveMinimum": 0 },
+          "vials": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "ett": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gaInputRange", "gaLookupClamp", "gaTable", "weightOffsetCm", "tubeByWeightKg", "tubeByGaWeeks"],
+      "properties": {
+        "gaInputRange": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+        "gaLookupClamp": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+        "gaTable": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fromWeeks", "toWeeks", "depthCm"],
+            "properties": {
+              "fromWeeks": { "type": "number" },
+              "toWeeks": { "type": "number" },
+              "depthCm": { "type": "number", "exclusiveMinimum": 0 }
+            }
+          }
+        },
+        "weightOffsetCm": { "type": "number" },
+        "tubeByWeightKg": { "$ref": "#/definitions/tubeRules" },
+        "tubeByGaWeeks": { "$ref": "#/definitions/tubeRules" }
+      }
+    },
+    "xrayCheck": { "type": "string", "minLength": 1 },
+    "legend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["silverman"],
+      "properties": { "silverman": { "type": "string", "minLength": 1 } }
+    }
+  },
+  "definitions": {
+    "tubeRules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sizeMm"],
+        "properties": {
+          "below": { "type": "number" },
+          "upTo": { "type": "number" },
+          "sizeMm": { "type": "string", "pattern": "^\\d+(\\.\\d)?$" }
+        }
+      }
+    }
+  }
+}

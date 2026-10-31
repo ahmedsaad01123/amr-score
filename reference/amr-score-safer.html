@@ -1,0 +1,361 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Amr Score (SAFER Score)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: single-column bedside tool; sticky verdict bar, five scored criteria, 30-min reassessment alarm, dose */
+:root{
+  --bg:#f3f6f7; --surface:#ffffff; --fg:#14232b; --muted:#5b6f78; --line:#d8e2e6;
+  --accent:#0f6f7c; --accent-soft:#e1f0f2;
+  --ok:#1f7a4d; --ok-soft:#e3f3ea; --warn:#a86400; --warn-soft:#fbf0dc; --crit:#b3261e; --crit-soft:#fbe5e3;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1619; --surface:#162226; --fg:#e4eef1; --muted:#93a9b1; --line:#27373d;
+  --accent:#4fb8c6; --accent-soft:#173a40;
+  --ok:#5cc98f; --ok-soft:#163327; --warn:#e8a947; --warn-soft:#3a2a12; --crit:#f07b72; --crit-soft:#3d1a18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1619; --surface:#162226; --fg:#e4eef1; --muted:#93a9b1; --line:#27373d;
+  --accent:#4fb8c6; --accent-soft:#173a40;
+  --ok:#5cc98f; --ok-soft:#163327; --warn:#e8a947; --warn-soft:#3a2a12; --crit:#f07b72; --crit-soft:#3d1a18; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+header{padding-block:18px 6px}
+h1{font-size:1.4rem;margin:0;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--accent)}
+h1 .alt{font-weight:500;color:var(--muted);font-size:.78em;white-space:nowrap}
+.sub{color:var(--muted);margin:4px 0 0;font-size:.9rem}
+.sample{display:inline-block;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:6px;font-weight:600}
+
+.result{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-block:10px 16px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;box-shadow:0 4px 16px rgb(0 0 0 / .06)}
+.total{font-family:var(--mono);font-size:2.2rem;font-weight:600;line-height:1;grid-row:span 2;font-variant-numeric:tabular-nums}
+.total small{font-size:.9rem;color:var(--muted)}
+.verdict{font-weight:700;font-size:1.05rem;padding:3px 10px;border-radius:999px;justify-self:start}
+.verdict.warn{background:var(--warn-soft);color:var(--warn)}
+.verdict.crit{background:var(--crit-soft);color:var(--crit)}
+.verdict.neutral{background:var(--accent-soft);color:var(--accent)}
+.why{color:var(--muted);font-size:.85rem;min-width:0}
+.scale{grid-column:1/-1;position:relative;height:6px;border-radius:3px;background:var(--line);margin-top:8px}
+.scale i{position:absolute;inset:0 auto 0 0;border-radius:3px;width:0;transition:width .2s,background .2s}
+.scale b{position:absolute;top:-4px;width:2px;height:14px;background:var(--fg);border-radius:1px}
+.note{grid-column:1/-1;font-size:.8rem;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:6px 9px;margin-top:6px}
+
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.item-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:8px}
+.item-head b{font-weight:600}
+.hint{display:block;font-size:.78rem;color:var(--muted);font-weight:400}
+.pts{font-family:var(--mono);color:var(--muted);font-size:.85rem;white-space:nowrap}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px}
+.seg button{font:inherit;font-size:.86rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:9px;padding:8px 4px;cursor:pointer;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.2;text-align:center}
+.seg button span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg button[aria-pressed="true"] span{color:#fff;opacity:.85}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.brand{display:flex;gap:12px;align-items:center}
+.brand svg{width:56px;height:56px;flex:none}
+.by{font-size:.8rem;color:var(--muted);letter-spacing:.04em}
+.brand{justify-content:space-between}.brand>div:first-of-type{flex:1}
+.qrbtn{font:inherit;font-weight:600;font-size:.85rem;border:1px solid var(--accent);color:var(--accent);background:var(--surface);border-radius:9px;padding:8px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.qrbtn svg{width:18px;height:18px}
+.qrpanel{background:#fff;color:#14232b;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px;text-align:center}
+.qrpanel #qr{display:flex;justify-content:center}
+.qrpanel #qr img,.qrpanel #qr canvas{width:100%;max-width:240px;height:auto}
+.qrpanel p{margin:10px 0 0;font-size:.85rem;color:#5b6f78}
+.qrpanel b{color:#0f6f7c}
+.ltr{display:inline-grid;place-items:center;width:1.6em;height:1.6em;margin-right:8px;border-radius:6px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:.85rem;vertical-align:1px}
+.timer{border-color:var(--accent)}
+.timer.ringing{animation:ring 1s infinite;border-color:var(--crit)}
+@keyframes ring{50%{background:var(--crit-soft)}}
+.clock{font-family:var(--mono);font-size:2.4rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.tline{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.round{font-size:.85rem;color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:9px;padding:9px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.stop{background:var(--crit);border-color:var(--crit);color:#fff}
+.log{margin:10px 0 0;padding:0;list-style:none;font-size:.85rem}
+.log li{display:grid;grid-template-columns:4.5em 3em 1fr;gap:8px;padding:5px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.log .t{font-family:var(--mono);color:var(--muted)}
+.log .s{font-family:var(--mono);font-weight:600}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row label{font-weight:600}
+.row input{font:inherit;font-family:var(--mono);width:96px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--fg)}
+.row output{font-family:var(--mono);font-weight:600;color:var(--accent)}
+.sublbl{font-size:.85rem;font-weight:600;margin:12px 0 6px}
+#sType{grid-template-columns:repeat(2,minmax(0,1fr))}
+.seg button .trade{font-weight:600;font-size:.8rem}
+.dgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.stat .k{font-size:.78rem;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-size:1.5rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.stat .d{font-size:.78rem;color:var(--muted)}
+.xray{margin-top:10px;font-size:.85rem;background:var(--accent-soft);border-radius:10px;padding:10px 12px}
+.legend{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;margin-top:6px}
+.legend p{margin:0 0 6px}
+.legend strong{color:var(--fg)}
+@media (prefers-reduced-motion:reduce){.scale i{transition:none}.timer.ringing{animation:none;background:var(--crit-soft)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Preterm baby on ventilation in an incubator">
+        <rect width="120" height="120" rx="28" fill="#0f6f7c"/>
+        <path d="M26 24 h10 v-8 h14 v8 h10 v-8 h14 v8 h10" fill="none" stroke="#9fe0e8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M84 24 h6 q6 0 6 6 v12" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+        <path d="M20 84 V62 Q20 40 60 40 Q100 40 100 62 V84 Z" fill="#ffffff" fill-opacity=".14" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="90" cy="58" r="5" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+        <path d="M96 42 Q96 52 90 56 Q70 54 50 62" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="28" y="76" width="64" height="6" rx="3" fill="#ffffff"/>
+        <circle cx="42" cy="67" r="8" fill="#ffe3cf"/>
+        <rect x="48" y="64" width="34" height="12" rx="6" fill="#ffe3cf"/>
+        <rect x="60" y="64" width="11" height="12" rx="3" fill="#ffffff"/>
+        <rect x="14" y="84" width="92" height="10" rx="4" fill="#ffffff"/>
+        <rect x="26" y="94" width="6" height="10" rx="2" fill="#ffffff" fill-opacity=".8"/>
+        <rect x="88" y="94" width="6" height="10" rx="2" fill="#ffffff" fill-opacity=".8"/>
+      </svg>
+      <div>
+        <h1>Amr Score <span class="alt">(<em>SAFER</em> Score)</span></h1>
+        <div class="by">By Amr</div>
+      </div>
+      <button class="qrbtn" id="qrBtn" type="button" aria-expanded="false" aria-controls="qrPanel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 18h3v3"/></svg>QR
+      </button>
+    </div>
+    <div class="qrpanel" id="qrPanel" hidden>
+      <div id="qr"></div>
+      <p><b>Amr Score (SAFER Score)</b><br>Scan to open on another phone</p>
+    </div>
+    <p class="sub">Surfactant decision in preterm respiratory distress, first 2 hours.</p>
+  </header>
+
+  <section class="result" aria-live="polite">
+    <div class="total"><span id="total">0</span><small>/12</small></div>
+    <div class="verdict warn" id="verdict">Reassess in 30 min</div>
+    <div class="why" id="why"></div>
+    <div class="scale"><i id="fill"></i><b id="mark" style="left:calc(50% - 1px)"></b></div>
+    <div class="note" id="note" hidden>FiO₂ &gt; 30% on CPAP: European Consensus recommends surfactant at this level.</div>
+  </section>
+
+  <div id="items"></div>
+
+  <div class="item timer" id="timerCard">
+    <div class="tline">
+      <div>
+        <b>Reassessment alarm</b>
+        <span class="hint">Reminds you to reassess every 30 min for 2 hours, with a gentle melody</span>
+      </div>
+      <span class="round" id="round">4 reminders · 30 min apart</span>
+    </div>
+    <div class="tline" style="margin-top:10px">
+      <div class="clock" id="clock">30:00</div>
+    </div>
+    <div class="btns">
+      <button class="btn primary" id="tStart" type="button">Start 2 h reminders</button>
+      <button class="btn stop" id="tStop" type="button" hidden>Stop alarm</button>
+      <button class="btn" id="tCancel" type="button" hidden>Cancel</button>
+      <button class="btn" id="logBtn" type="button">Record score</button>
+      <button class="btn" id="tTest" type="button">Test sound</button>
+    </div>
+    <ul class="log" id="log"></ul>
+  </div>
+
+  <div class="item" id="doseCard">
+    <div class="item-head"><b>Surfactant dose &amp; ETT position</b></div>
+    <div class="row">
+      <label for="wt">Weight (kg)</label>
+      <input id="wt" type="number" inputmode="decimal" min="0.3" max="5" step="0.01" value="" placeholder="kg">
+      <label for="gaw">GA (weeks)</label>
+      <input id="gaw" type="number" inputmode="numeric" min="22" max="44" step="1" value="" placeholder="wk">
+    </div>
+    <p class="sublbl">Surfactant type</p>
+    <div class="seg" id="sType" role="group" aria-label="Surfactant type"></div>
+    <p class="sublbl">Dose</p>
+    <div class="seg" id="sWhich" role="group" aria-label="Initial or repeat dose">
+      <button type="button" data-rep="0" aria-pressed="true">Initial dose</button>
+      <button type="button" data-rep="1" aria-pressed="false">Repeat dose</button>
+    </div>
+    <div class="dgrid">
+      <div class="stat"><div class="k">Surfactant dose</div><div class="v" id="doseV">—</div><div class="d" id="doseD">Choose type and enter weight</div></div>
+      <div class="stat"><div class="k">ETT depth at the lip</div><div class="v" id="ettV">—</div><div class="d" id="ettD">Enter GA or weight</div></div>
+    </div>
+    <div class="xray"><b>Check the X-ray before giving:</b> ETT tip at <b>T1–T2</b>, mid-trachea, about <b>1 cm above the carina</b> (level with the clavicles). If the tip is at or below the carina (T3 or lower), pull back first so the dose doesn't go only into the right lung.</div>
+  </div>
+
+  <button class="btn" id="reset" type="button">Clear all</button>
+
+  <div class="legend">
+    <p><strong>Score ≥ 6:</strong> give surfactant. <strong>Score &lt; 6:</strong> reassess every 30 min during the first 2 hours.</p>
+    <p><strong>Max 12.</strong> Steroid 0–1 · Age 0–3 · FiO₂ 0–2 · Effort 0–3 · Respiratory support 0–3.</p>
+    <p>Distress grading follows Silverman-Andersen as a guide.</p>
+    <p><strong>Surfactant doses (product labels):</strong> poractant alfa (Curosurf) 200 mg/kg initial (2.5 mL/kg), 100 mg/kg repeat (1.25 mL/kg); beractant (Survanta) 100 mg/kg (4 mL/kg); calfactant (Infasurf) 105 mg/kg (3 mL/kg); bovactant (Alveofact) 50 mg/kg (1.2 mL/kg). <strong>ETT depth:</strong> NRP gestational-age table when GA is entered (more accurate in small babies), otherwise weight + 6 cm.</p>
+    <p>Keep this page open on screen for the alarm to sound. Draft score, not yet validated; use with clinical judgement and unit protocol.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const CUT=6, MAX=12, ROUNDS=4, MS=30*60*1000;
+const ITEMS=[
+  {id:"ster",l:"S",name:"Steroid (antenatal)",opts:[["Given > 24 h",0],["Not given or < 24 h",1]]},
+  {id:"ga",l:"A",name:"Age (gestational)",opts:[["< 28 wk",3],["28–32 wk",2],["32–35 wk",1],["> 35 wk",0]]},
+  {id:"fio2",l:"F",name:"FiO₂ requirement",opts:[["< 30%",0],["30–40%",1],["> 40%",2]]},
+  {id:"rd",l:"E",name:"Effort (respiratory distress)",hint:"Silverman: mild 1–3 · moderate 4–6 · severe ≥ 7",opts:[["None",0],["Mild",1],["Moderate",2],["Severe",3]]},
+  {id:"resp",l:"R",name:"Respiratory support",opts:[["None",0],["HFNC",1],["CPAP 6–7",1],["CPAP 8",2],["Ventilation",3]]}
+];
+let state={}, total=0;
+const $=id=>document.getElementById(id);
+const box=$("items");
+
+ITEMS.forEach(it=>{
+  const d=document.createElement("div");d.className="item";
+  d.innerHTML=`<div class="item-head"><b><span class="ltr">${it.l}</span>${it.name}${it.hint?`<span class="hint">${it.hint}</span>`:""}</b><span class="pts" id="p-${it.id}"></span></div>
+  <div class="seg" role="group" aria-label="${it.name}">${it.opts.map((o,i)=>
+    `<button type="button" id="${it.id}-${i}" data-item="${it.id}" data-i="${i}" aria-pressed="false">${o[0]}<span>${o[1]} pt</span></button>`).join("")}</div>`;
+  box.appendChild(d);
+});
+box.addEventListener("click",e=>{
+  const b=e.target.closest("button[data-item]");if(!b)return;
+  const k=b.dataset.item,i=+b.dataset.i;
+  state[k]=state[k]===i?undefined:i;
+  render();
+});
+
+function render(){
+  total=0;let done=0;
+  ITEMS.forEach(it=>{
+    const i=state[it.id];
+    it.opts.forEach((_,j)=>$(`${it.id}-${j}`).setAttribute("aria-pressed",i===j));
+    const p=i===undefined?null:it.opts[i][1];
+    $("p-"+it.id).textContent=p===null?"—":p+" pt";
+    if(p!==null){total+=p;done++}
+  });
+  $("total").textContent=total;
+  const give=total>=CUT;
+  $("verdict").className="verdict "+(give?"crit":"warn");
+  $("verdict").textContent=give?"Give surfactant":"Reassess in 30 min";
+  let why=give?`Score ${total} ≥ ${CUT}`:`Score ${total} < ${CUT} · continue support`;
+  if(done<ITEMS.length)why+=` · ${ITEMS.length-done} item(s) not scored`;
+  if(done===0){$("verdict").className="verdict neutral";$("verdict").textContent="Score the 5 items";why="Tap one option in each item below"}
+  $("why").textContent=why;
+  $("fill").style.width=(total/MAX*100)+"%";$("fill").style.background=give?"var(--crit)":"var(--warn)";
+  $("note").hidden=!(!give && state.fio2>=1 && (state.resp===2||state.resp===3));
+}
+
+/* ---- Reassessment alarm: every 30 min for 2 hours, gentle melody ---- */
+let startAt=null, fired=0, tick=null, ringing=false, actx=null, musicT=null, ringStop=null, wake=null;
+try{const s=JSON.parse(localStorage.getItem("safer-timer2")||"null");if(s&&s.startAt&&s.fired<ROUNDS){startAt=s.startAt;fired=s.fired}}catch(e){}
+function save(){try{localStorage.setItem("safer-timer2",JSON.stringify(startAt?{startAt,fired}:null))}catch(e){}}
+function hm(t){return new Date(t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}
+function audioOn(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume()}catch(e){}}
+document.addEventListener("pointerdown",audioOn,{once:true});
+const TUNE=[[659.25,0],[783.99,.18],[1046.5,.36],[987.77,.62],[783.99,.8],[880,.98],[1046.5,1.24],[1318.5,1.5]];
+function note(f,t,len,vol){const o=actx.createOscillator(),o2=actx.createOscillator(),g=actx.createGain(),g2=actx.createGain();
+  o.type="sine";o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2;g2.gain.value=.22;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t+len);
+  o.connect(g);o2.connect(g2);g2.connect(g);g.connect(actx.destination);o.start(t);o2.start(t);o.stop(t+len+.05);o2.stop(t+len+.05)}
+function melody(){
+  if(!actx)return;const t0=actx.currentTime+.05;
+  TUNE.forEach(([f,d],i)=>note(f,t0+d,i===TUNE.length-1?1.8:.9,.26));
+  note(261.63,t0,1.3,.16);note(392,t0+.98,1.3,.14);note(329.63,t0+1.5,2,.14);
+  try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
+}
+function fmt(ms){ms=Math.max(0,ms);const m=Math.floor(ms/60000),s=Math.floor(ms%60000/1000);return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
+function startRing(){ringing=true;$("timerCard").classList.add("ringing");$("tStop").hidden=false;
+  melody();clearInterval(musicT);musicT=setInterval(melody,4000);clearTimeout(ringStop);ringStop=setTimeout(stopRing,120000)}
+function stopRing(){ringing=false;clearInterval(musicT);clearTimeout(ringStop);$("timerCard").classList.remove("ringing");$("tStop").hidden=true;update()}
+function update(){
+  if(startAt){
+    const due=Math.min(ROUNDS,Math.floor((Date.now()-startAt)/MS));
+    if(due>fired){fired=due;startRing()}
+    if(fired>=ROUNDS){startAt=null;clearInterval(tick);tick=null}
+    save();
+  }
+  if(startAt){
+    const next=startAt+(fired+1)*MS;
+    $("clock").textContent=fmt(next-Date.now());
+    $("round").textContent=`Reminder ${fired+1} of ${ROUNDS} at ${hm(next)}`;
+    $("tStart").hidden=true;$("tCancel").hidden=false;
+  }else{
+    $("clock").textContent=fired>=ROUNDS?"00:00":"30:00";
+    $("round").textContent=fired>=ROUNDS?"2 hours completed":`${ROUNDS} reminders · 30 min apart`;
+    $("tStart").textContent=fired>=ROUNDS?"Restart 2 h reminders":"Start 2 h reminders";
+    $("tStart").hidden=false;$("tCancel").hidden=true;
+  }
+  if(ringing)$("round").textContent=`Time to reassess (${fired} of ${ROUNDS})`;
+}
+async function keepAwake(){try{if(navigator.wakeLock)wake=await navigator.wakeLock.request("screen")}catch(e){}}
+$("tStart").addEventListener("click",()=>{
+  audioOn();if(ringing)stopRing();
+  fired=0;startAt=Date.now();save();keepAwake();
+  clearInterval(tick);tick=setInterval(update,500);update();
+});
+$("tStop").addEventListener("click",stopRing);
+$("tCancel").addEventListener("click",()=>{startAt=null;fired=0;clearInterval(tick);tick=null;save();stopRing()});
+$("tTest").addEventListener("click",()=>{audioOn();melody()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&startAt)keepAwake()});
+if(startAt){tick=setInterval(update,500)}
+update();
+
+/* ---- Score log ---- */
+$("logBtn").addEventListener("click",()=>{
+  const now=new Date(),li=document.createElement("li");
+  const t=now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  li.innerHTML=`<span class="t">${t}</span><span class="s">${total}</span><span>${total>=CUT?"Give surfactant":"Reassess"}</span>`;
+  $("log").prepend(li);
+});
+
+/* ---- QR ---- */
+let qrMade=false;
+$("qrBtn").addEventListener("click",()=>{
+  const p=$("qrPanel"),open=p.hidden;p.hidden=!open;$("qrBtn").setAttribute("aria-expanded",open);
+  if(open&&!qrMade&&window.QRCode){new QRCode($("qr"),{text:"https://claude.ai/artifact/BD8Amo2JiF8GsBtSCR4yX3",width:480,height:480,colorDark:"#0f6f7c",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});qrMade=true}
+});
+
+/* ---- Dose ---- */
+const wt=$("wt");
+const gaw=$("gaw");
+const SURF=[
+  {id:"pora",n:"Poractant alfa",t:"Curosurf",c:80,first:200,rep:100,vials:"1.5 mL and 3 mL"},
+  {id:"bera",n:"Beractant",t:"Survanta",c:25,first:100,rep:100,vials:"4 mL and 8 mL"},
+  {id:"calf",n:"Calfactant",t:"Infasurf",c:35,first:105,rep:105,vials:"3 mL and 6 mL"},
+  {id:"bova",n:"Bovactant",t:"Alveofact",c:45,first:50,rep:50,mlkg:1.2,vials:"1.2 mL"}];
+const ETT_GA=[[23,24,5.5],[25,26,6.0],[27,29,6.5],[30,32,7.0],[33,34,7.5],[35,37,8.0],[38,40,8.5],[41,43,9.0]];
+let sType=null, sRep=false;
+$("sType").innerHTML=SURF.map(s=>`<button type="button" data-s="${s.id}" aria-pressed="false">${s.n}<b class="trade">${s.t}</b><span>${s.first} mg/kg · ${s.c} mg/mL</span></button>`).join("");
+$("sType").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sType=b.dataset.s;calcDose()});
+$("sWhich").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sRep=b.dataset.rep==="1";calcDose()});
+gaw.addEventListener("input",()=>calcDose());
+function ettDepthGA(g){g=Math.max(23,Math.min(43,g));const r=ETT_GA.find(x=>g>=x[0]&&g<=x[1]);return r?r[2]:null}
+function ettSize(w,g){if(w>0)return w<1?"2.5":w<=2?"3.0":"3.5";if(g>0)return g<28?"2.5":g<=34?"3.0":"3.5";return null}
+function calcDose(){
+  const w=parseFloat(wt.value), g=parseInt(gaw.value,10);
+  document.querySelectorAll("#sType button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===sType));
+  document.querySelectorAll("#sWhich button").forEach(b=>b.setAttribute("aria-pressed",(b.dataset.rep==="1")===sRep));
+  const s=SURF.find(x=>x.id===sType);
+  if(!s){$("doseV").textContent="—";$("doseD").textContent="Choose a surfactant type"}
+  else if(!(w>0)){$("doseV").textContent="—";$("doseD").textContent="Enter the weight"}
+  else{const mgkg=sRep?s.rep:s.first,mg=w*mgkg,mlkg=s.mlkg||mgkg/s.c,ml=w*mlkg;
+    $("doseV").textContent=ml.toFixed(2)+" mL";
+    $("doseD").textContent=`${Math.round(mg)} mg · ${mgkg} mg/kg (${mlkg.toFixed(2)} mL/kg) · vials ${s.vials}`}
+  const gd=g>=22&&g<=44?ettDepthGA(g):null, wd=w>0?w+6:null, sz=ettSize(w,g);
+  if(gd===null&&wd===null){$("ettV").textContent="—";$("ettD").textContent="Enter GA or weight"}
+  else{const main=gd!==null?gd:wd;
+    $("ettV").textContent=main.toFixed(1)+" cm";
+    let d=gd!==null?`NRP table for ${g} wk`:"Weight + 6 cm";
+    if(gd!==null&&wd!==null)d+=` · weight + 6 = ${wd.toFixed(1)} cm`;
+    if(sz)d+=` · tube size ${sz} mm`;
+    $("ettD").textContent=d}
+}
+wt.addEventListener("input",calcDose);
+$("reset").addEventListener("click",()=>{
+  state={};wt.value="";gaw.value="";calcDose();$("log").innerHTML="";render();
+});
+render();calcDose();
+</script>
+
+</body></html>

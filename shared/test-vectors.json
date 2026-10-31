@@ -1,0 +1,529 @@
+{
+  "version": "0",
+  "generated": "2026-10-31",
+  "description": "Test vectors covering all score options, boundaries, dose calculations, and ETT logic. Generated from rules.json v0.",
+  "vectors": [
+    {
+      "name": "All minimum scores",
+      "selection": { "ster": 0, "ga": 3, "fio2": 0, "rd": 0, "resp": 0 },
+      "expected": {
+        "total": 0,
+        "done": 5,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Cutoff boundary: score 5 (just below)",
+      "selection": { "ster": 1, "ga": 1, "fio2": 1, "rd": 1, "resp": 1 },
+      "expected": {
+        "total": 5,
+        "done": 5,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": true
+      }
+    },
+    {
+      "name": "Cutoff boundary: score 6 (exactly at cutoff)",
+      "selection": { "ster": 1, "ga": 2, "fio2": 1, "rd": 1, "resp": 1 },
+      "expected": {
+        "total": 6,
+        "done": 5,
+        "give": true,
+        "kind": "crit",
+        "verdict": "Give surfactant",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Maximum score",
+      "selection": { "ster": 1, "ga": 0, "fio2": 2, "rd": 3, "resp": 4 },
+      "expected": {
+        "total": 12,
+        "done": 5,
+        "give": true,
+        "kind": "crit",
+        "verdict": "Give surfactant",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "No items scored",
+      "selection": {},
+      "expected": {
+        "total": 0,
+        "done": 0,
+        "give": false,
+        "kind": "neutral",
+        "verdict": "Score the 5 items",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Partial scoring: 2 items",
+      "selection": { "ster": 1, "ga": 0 },
+      "expected": {
+        "total": 1,
+        "done": 2,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Steroid: Given > 24h (0 pts)",
+      "selection": { "ster": 0 },
+      "expected": {
+        "total": 0,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Steroid: Not given or < 24h (1 pt)",
+      "selection": { "ster": 1 },
+      "expected": {
+        "total": 1,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Age: < 28 wk (3 pts)",
+      "selection": { "ga": 0 },
+      "expected": {
+        "total": 3,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Age: 28-32 wk (2 pts)",
+      "selection": { "ga": 1 },
+      "expected": {
+        "total": 2,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Age: 32-35 wk (1 pt)",
+      "selection": { "ga": 2 },
+      "expected": {
+        "total": 1,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Age: > 35 wk (0 pts)",
+      "selection": { "ga": 3 },
+      "expected": {
+        "total": 0,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "FiO2: < 30% (0 pts)",
+      "selection": { "fio2": 0 },
+      "expected": {
+        "total": 0,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "FiO2: 30-40% (1 pt)",
+      "selection": { "fio2": 1 },
+      "expected": {
+        "total": 1,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "FiO2: > 40% (2 pts)",
+      "selection": { "fio2": 2 },
+      "expected": {
+        "total": 2,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Effort: None (0 pts)",
+      "selection": { "rd": 0 },
+      "expected": {
+        "total": 0,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Effort: Mild (1 pt)",
+      "selection": { "rd": 1 },
+      "expected": {
+        "total": 1,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Effort: Moderate (2 pts)",
+      "selection": { "rd": 2 },
+      "expected": {
+        "total": 2,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Effort: Severe (3 pts)",
+      "selection": { "rd": 3 },
+      "expected": {
+        "total": 3,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Support: None (0 pts)",
+      "selection": { "resp": 0 },
+      "expected": {
+        "total": 0,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Support: HFNC (1 pt)",
+      "selection": { "resp": 1 },
+      "expected": {
+        "total": 1,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Support: CPAP 6-7 (1 pt)",
+      "selection": { "resp": 2 },
+      "expected": {
+        "total": 1,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Support: CPAP 8 (2 pts)",
+      "selection": { "resp": 3 },
+      "expected": {
+        "total": 2,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Support: Ventilation (3 pts)",
+      "selection": { "resp": 4 },
+      "expected": {
+        "total": 3,
+        "done": 1,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "FiO2 note: 30-40% on CPAP 6-7 (note visible)",
+      "selection": { "fio2": 1, "resp": 2 },
+      "expected": {
+        "total": 2,
+        "done": 2,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": true
+      }
+    },
+    {
+      "name": "FiO2 note: > 40% on CPAP 8 (note visible)",
+      "selection": { "fio2": 2, "resp": 3 },
+      "expected": {
+        "total": 4,
+        "done": 2,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": true
+      }
+    },
+    {
+      "name": "FiO2 note: 30-40% on HFNC (note NOT visible)",
+      "selection": { "fio2": 1, "resp": 1 },
+      "expected": {
+        "total": 2,
+        "done": 2,
+        "give": false,
+        "kind": "warn",
+        "verdict": "Reassess in 30 min",
+        "noteVisible": false
+      }
+    },
+    {
+      "name": "Dose: Poractant alfa initial, 1.0 kg",
+      "doseInput": { "weightKg": 1.0, "surfactantId": "pora", "repeat": false },
+      "expectedDose": {
+        "ok": true,
+        "value": "2.50 mL",
+        "detail": "200 mg · 200 mg/kg (2.50 mL/kg) · vials 1.5 mL and 3 mL"
+      }
+    },
+    {
+      "name": "Dose: Poractant alfa repeat, 1.0 kg",
+      "doseInput": { "weightKg": 1.0, "surfactantId": "pora", "repeat": true },
+      "expectedDose": {
+        "ok": true,
+        "value": "1.25 mL",
+        "detail": "100 mg · 100 mg/kg (1.25 mL/kg) · vials 1.5 mL and 3 mL"
+      }
+    },
+    {
+      "name": "Dose: Beractant initial, 2.5 kg",
+      "doseInput": { "weightKg": 2.5, "surfactantId": "bera", "repeat": false },
+      "expectedDose": {
+        "ok": true,
+        "value": "10.00 mL",
+        "detail": "250 mg · 100 mg/kg (4.00 mL/kg) · vials 4 mL and 8 mL"
+      }
+    },
+    {
+      "name": "Dose: Calfactant initial, 1.5 kg",
+      "doseInput": { "weightKg": 1.5, "surfactantId": "calf", "repeat": false },
+      "expectedDose": {
+        "ok": true,
+        "value": "4.50 mL",
+        "detail": "158 mg · 105 mg/kg (3.00 mL/kg) · vials 3 mL and 6 mL"
+      }
+    },
+    {
+      "name": "Dose: Bovactant initial (special case: 1.2 mL/kg), 1.0 kg",
+      "doseInput": { "weightKg": 1.0, "surfactantId": "bova", "repeat": false },
+      "expectedDose": {
+        "ok": true,
+        "value": "1.20 mL",
+        "detail": "50 mg · 50 mg/kg (1.20 mL/kg) · vials 1.2 mL"
+      }
+    },
+    {
+      "name": "Dose: No surfactant selected",
+      "doseInput": { "weightKg": 1.0, "surfactantId": null, "repeat": false },
+      "expectedDose": {
+        "ok": false,
+        "value": "—",
+        "detail": "Choose a surfactant type"
+      }
+    },
+    {
+      "name": "Dose: No weight entered",
+      "doseInput": { "weightKg": NaN, "surfactantId": "pora", "repeat": false },
+      "expectedDose": {
+        "ok": false,
+        "value": "—",
+        "detail": "Enter the weight"
+      }
+    },
+    {
+      "name": "ETT: GA 24 weeks (from table)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 24 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "5.5 cm",
+        "detail": "NRP table for 24 wk · tube size 2.5 mm"
+      }
+    },
+    {
+      "name": "ETT: GA 30 weeks (from table)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 30 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "7.0 cm",
+        "detail": "NRP table for 30 wk · tube size 3.0 mm"
+      }
+    },
+    {
+      "name": "ETT: GA 40 weeks (from table)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 40 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "8.5 cm",
+        "detail": "NRP table for 40 wk · tube size 3.5 mm"
+      }
+    },
+    {
+      "name": "ETT: GA below clamp (22 weeks, clamped to 23)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 22 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "5.5 cm",
+        "detail": "NRP table for 22 wk · tube size 2.5 mm"
+      }
+    },
+    {
+      "name": "ETT: GA above clamp (44 weeks, clamped to 43)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 44 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "9.0 cm",
+        "detail": "NRP table for 44 wk · tube size 3.5 mm"
+      }
+    },
+    {
+      "name": "ETT: Weight only (1.5 kg)",
+      "ettInput": { "weightKg": 1.5, "gaWeeks": NaN },
+      "expectedEtt": {
+        "ok": true,
+        "value": "7.5 cm",
+        "detail": "Weight + 6 cm · tube size 3.0 mm"
+      }
+    },
+    {
+      "name": "ETT: Weight only (0.8 kg)",
+      "ettInput": { "weightKg": 0.8, "gaWeeks": NaN },
+      "expectedEtt": {
+        "ok": true,
+        "value": "6.8 cm",
+        "detail": "Weight + 6 cm · tube size 2.5 mm"
+      }
+    },
+    {
+      "name": "ETT: Both GA and weight (GA as main)",
+      "ettInput": { "weightKg": 1.5, "gaWeeks": 30 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "7.0 cm",
+        "detail": "NRP table for 30 wk · weight + 6 = 7.5 cm · tube size 3.0 mm"
+      }
+    },
+    {
+      "name": "ETT: No inputs",
+      "ettInput": { "weightKg": NaN, "gaWeeks": NaN },
+      "expectedEtt": {
+        "ok": false,
+        "value": "—",
+        "detail": "Enter GA or weight"
+      }
+    },
+    {
+      "name": "Tube size: Weight < 1 kg",
+      "ettInput": { "weightKg": 0.8, "gaWeeks": NaN },
+      "expectedEtt": {
+        "ok": true,
+        "value": "6.8 cm",
+        "detail": "Weight + 6 cm · tube size 2.5 mm"
+      }
+    },
+    {
+      "name": "Tube size: Weight 1.5 kg (≤ 2 kg)",
+      "ettInput": { "weightKg": 1.5, "gaWeeks": NaN },
+      "expectedEtt": {
+        "ok": true,
+        "value": "7.5 cm",
+        "detail": "Weight + 6 cm · tube size 3.0 mm"
+      }
+    },
+    {
+      "name": "Tube size: Weight 3.0 kg (> 2 kg)",
+      "ettInput": { "weightKg": 3.0, "gaWeeks": NaN },
+      "expectedEtt": {
+        "ok": true,
+        "value": "9.0 cm",
+        "detail": "Weight + 6 cm · tube size 3.5 mm"
+      }
+    },
+    {
+      "name": "Tube size: GA 26 weeks (< 28 wk)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 26 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "6.0 cm",
+        "detail": "NRP table for 26 wk · tube size 2.5 mm"
+      }
+    },
+    {
+      "name": "Tube size: GA 32 weeks (≤ 34 wk)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 32 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "7.0 cm",
+        "detail": "NRP table for 32 wk · tube size 3.0 mm"
+      }
+    },
+    {
+      "name": "Tube size: GA 38 weeks (> 34 wk)",
+      "ettInput": { "weightKg": NaN, "gaWeeks": 38 },
+      "expectedEtt": {
+        "ok": true,
+        "value": "8.5 cm",
+        "detail": "NRP table for 38 wk · tube size 3.5 mm"
+      }
+    }
+  ]
+}
